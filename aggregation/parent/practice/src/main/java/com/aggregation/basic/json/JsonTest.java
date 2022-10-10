@@ -23,4 +23,8 @@ public class JsonTest {
      */
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
+    public static void main(String[] args) {
+
+    }
 }
