@@ -121,6 +121,9 @@ public class PropertyPlaceholderHelper {
 	 * @param placeholderResolver the {@code PlaceholderResolver} to use for replacement
 	 * @return the supplied value with placeholders replaced inline
 	 */
+	/**
+	 * @Desc 用从提供的{@link PlaceholderResolver}返回的值替换格式{@code {name}}的所有占位符。
+	 */
 	public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
 		Assert.notNull(value, "'value' must not be null");
 		return parseStringValue(value, placeholderResolver, null);

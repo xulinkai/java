@@ -140,7 +140,9 @@ class ConstructorResolver {
 		else {
 			Object[] argsToResolve = null;
 			synchronized (mbd.constructorArgumentLock) {
+				// 获取BeanDefinition中解析完成的构造函数
 				constructorToUse = (Constructor<?>) mbd.resolvedConstructorOrFactoryMethod;
+				// BeanDefinition中存在构造函数并且存在构造函数的参数，赋值进行使用
 				if (constructorToUse != null && mbd.constructorArgumentsResolved) {
 					// Found a cached constructor...
 					argsToUse = mbd.resolvedConstructorArguments;
@@ -150,6 +152,7 @@ class ConstructorResolver {
 				}
 			}
 			if (argsToResolve != null) {
+				// 解析存储在给定bean定义中的准备好的参数。
 				argsToUse = resolvePreparedArguments(beanName, mbd, bw, constructorToUse, argsToResolve);
 			}
 		}

@@ -59,6 +59,10 @@ import org.springframework.core.io.support.ResourcePatternResolver;
  * @author Chris Beams
  * @since 2.0
  */
+
+/**
+ * @Desc 属性编辑注册器用来填充具体的属性在bean创建的时候
+ */
 public class ResourceEditorRegistrar implements PropertyEditorRegistrar {
 
 	private final PropertyResolver propertyResolver;
@@ -125,6 +129,9 @@ public class ResourceEditorRegistrar implements PropertyEditorRegistrar {
 	/**
 	 * Override default editor, if possible (since that's what we really mean to do here);
 	 * otherwise register as a custom editor.
+	 */
+	/**
+	 * @Desc 覆盖默认编辑器，如果可能的话(因为这是我们在这里真正想做的);否则注册为自定义编辑器。
 	 */
 	private void doRegisterEditor(PropertyEditorRegistry registry, Class<?> requiredType, PropertyEditor editor) {
 		if (registry instanceof PropertyEditorRegistrySupport) {

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="customer" class="com.xulk.bean.selfEditor.Customer">
+        <property name="name" value="xlk"></property>
+        <property name="address" value="河南省_商丘市_睢县"></property>
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+        <property name="propertyEditorRegistrars">
+            <list>
+                <bean class="com.xulk.bean.selfEditor.AddressPropertyEditorRegistrar"></bean>
+            </list>
+        </property>
+    </bean>
+
+
+    <!--<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+        <property name="customEditors">
+            <map>
+                <entry key="com.mashibing.selfEditor.Address">
+                    <value>com.mashibing.selfEditor.AddressPropertyEditor</value>
+                </entry>
+            </map>
+        </property>
+    </bean>-->
+</beans>

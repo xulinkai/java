@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="xmlA" class="com.xulk.bean.xml.XmlA">
+		<constructor-arg name="name" value="xulk"></constructor-arg>
+		<constructor-arg name="age" value="18"></constructor-arg>
+		<constructor-arg name="xmlB" ref="xmlB"></constructor-arg>
+	</bean>
+
+
+	<bean id="xmlB" class="com.xulk.bean.xml.XmlB"/>
+
+
+	<!--
+
+    1、约束文件 spring.schemas
+	xml文件里面定义什么属性是需要约束的，需要约束文件，一般是dtd或者xsd（使用较多）约束
+
+	xml文件里面有约束地址，但是需要联网加载dtd文件地址，如果保证断网情况下也能检验约束，就需要本地存储这些约束文件，
+	例bean标签在下面的schemas文件地址中，可以把xsd的在线地址和本地xsd文件的地址做一个映射
+	spring-framework-5.3.21/spring-beans/src/main/resources/META-INF/spring.schemas
+
+    例如：http\://www.springframework.org/schema/beans/spring-beans-2.0.xsd=org/springframework/beans/factory/xml/spring-beans.xsd
+    在spring-beans的resource目录中存储了spring-beans.xsd文件，定义了哪些标签可以有哪些属性等。
+
+    2、标签解析文件 spring.handlers
+    解析标签时需要对应的标签解析器，在spring.handlers文件中配置了哪种标签使用那种对应的解析器，可看示例context module下的spring.handlers。ContextNamespaceHandler
+
+
+	-->
+
+</beans>

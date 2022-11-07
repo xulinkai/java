@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+	<!--
+	xml aop 在解析aop标签的时候 beanDefinitionMap 和 beanDefinitionNames 中 解析出来
+	AspectJPointcutAdvisor#0-4
+	internalAutoProxyCreator
+	logUtil
+	myPoint（也会解析成一个beanDefinition）
+	myCalculator
+
+	创建logUtil时  AspectJAwareAdvisorAutoProxyCreator此beanPostProcessor会帮助创建所有的advisor
+
+	AspectJPointcutAdvisor
+	AspectJPointcutAdvisor(AbstractAspectJAdvice advice)
+	AbstractAspectJAdvice(Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, AspectInstanceFactory aspectInstanceFactory)
+	创建advisor对象时，因为没有无参构造，所以必须先准备AbstractAspectJAdvice，AbstractAspectJAdvice也没有无参构造，需要先创建三个参数对象
+	(解析beanDefinition的时候 也有这样一个过程)
+
+
+
+	调用无参创建对象：调用无参实例化->属性填充
+	调有参创建对象：调
+
+
+
+
+
+	-->
+
+    <bean id="logUtil" class="com.xulk.bean.aop.xml.util.LogUtil" />
+    <bean id="myCalculator" class="com.xulk.bean.aop.xml.service.MyCalculator" />
+
+    <aop:config>
+        <aop:aspect ref="logUtil">
+            <aop:pointcut id="myPoint" expression="execution( Integer com.xulk.bean.aop.xml.service.MyCalculator.*  (..))"/>
+            <aop:around method="around" pointcut-ref="myPoint"></aop:around>
+            <aop:before method="start" pointcut-ref="myPoint"></aop:before>
+            <aop:after method="logFinally" pointcut-ref="myPoint"></aop:after>
+            <aop:after-returning method="stop" pointcut-ref="myPoint" returning="result"></aop:after-returning>
+            <aop:after-throwing method="logException" pointcut-ref="myPoint" throwing="e"></aop:after-throwing>
+        </aop:aspect>
+    </aop:config>
+
+    <aop:aspectj-autoproxy/>
+
+</beans>

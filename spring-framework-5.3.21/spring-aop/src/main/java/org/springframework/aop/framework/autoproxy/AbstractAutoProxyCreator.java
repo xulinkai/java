@@ -93,6 +93,11 @@ import org.springframework.util.StringUtils;
  * @see BeanNameAutoProxyCreator
  * @see DefaultAdvisorAutoProxyCreator
  */
+/**
+ * @Desc ProxyProcessorSupport的重要子类。SpringAOP中的核心类。
+ *  实现了SmartInstantiationAwareBeanPostProcessor、BeanFactoryAware接口。
+ *  自动创建代理对象的类。在使用AOP的时候基本上都是用的这个类来进行Bean的拦截，创建代理对象。
+ */
 @SuppressWarnings("serial")
 public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		implements SmartInstantiationAwareBeanPostProcessor, BeanFactoryAware {
@@ -237,6 +242,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return null;
 	}
 
+	/**
+	 * @Desc 看类图 此类是springAop的核心类
+	 */
 	@Override
 	public Object getEarlyBeanReference(Object bean, String beanName) {
 		Object cacheKey = getCacheKey(bean.getClass(), beanName);
@@ -252,6 +260,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
+			// 是否是spring基础类 是否应该跳过
 			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
 				this.advisedBeans.put(cacheKey, Boolean.FALSE);
 				return null;
@@ -284,6 +293,10 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * Create a proxy with the configured interceptors if the bean is
 	 * identified as one to proxy by the subclass.
 	 * @see #getAdvicesAndAdvisorsForBean
+	 */
+	/**
+	 * @Desc todo xlk 生成代理对象-aop
+	 * 此接口实现了 BeanPostProcessor 在after后置处理方法中 如果必要 会生成对应的代理对象
 	 */
 	@Override
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
@@ -325,22 +338,34 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @param cacheKey the cache key for metadata access
 	 * @return a proxy wrapping the bean, or the raw bean instance as-is
 	 */
+	/**
+	 * @Desc 如果需要，包装给定的bean，例如，如果它有资格被代理， 包装成代理对象
+	 */
 	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
+		// 已经处理过直接返回
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
 			return bean;
 		}
+		// 缓存中有 且 不进行代理的话 直接返回
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
 			return bean;
 		}
+
+		// isInfrastructureClass 判断是否是spring的基础类，是不需要被代理的
+		// shouldSkip是否应该被跳过
 		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
 			this.advisedBeans.put(cacheKey, Boolean.FALSE);
 			return bean;
 		}
 
 		// Create proxy if we have advice.
+		// 获取当前对象的增强器-advisor
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
+		// 如果需要代理的话
 		if (specificInterceptors != DO_NOT_PROXY) {
+			// 代理状态放入缓存中
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			// 根据获取到的Advices和Advisors为当前bean生成代理对象
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
 			this.proxyTypes.put(cacheKey, proxy.getClass());
@@ -362,6 +387,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @see org.springframework.aop.Advisor
 	 * @see org.springframework.aop.framework.AopInfrastructureBean
 	 * @see #shouldSkip
+	 */
+	/**
+	 * @Desc 返回给定的bean类是否代表一个不应该被代理的基础结构类。
 	 */
 	protected boolean isInfrastructureClass(Class<?> beanClass) {
 		boolean retVal = Advice.class.isAssignableFrom(beanClass) ||
@@ -454,17 +482,22 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		}
 		else {
 			// No proxyTargetClass flag enforced, let's apply our default checks...
+			// 判断是使用jdk动态代理 还是 cglib代理
 			if (shouldProxyTargetClass(beanClass, beanName)) {
 				proxyFactory.setProxyTargetClass(true);
 			}
 			else {
+				// 添加代理接口
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
 
+		// 构建增强器
 		Advisor[] advisors = buildAdvisors(beanName, specificInterceptors);
 		proxyFactory.addAdvisors(advisors);
+		// 设置到要代理的类
 		proxyFactory.setTargetSource(targetSource);
+		// 定制代理
 		customizeProxyFactory(proxyFactory);
 
 		proxyFactory.setFrozen(this.freezeProxy);
@@ -477,6 +510,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (classLoader instanceof SmartClassLoader && classLoader != beanClass.getClassLoader()) {
 			classLoader = ((SmartClassLoader) classLoader).getOriginalClassLoader();
 		}
+
+		// 真正的创建代理对象
 		return proxyFactory.getProxy(classLoader);
 	}
 

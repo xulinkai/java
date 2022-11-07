@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+}
+
+group 'org.springframework'
+version '5.3.21'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation(project(":spring-beans"))
+    implementation(project(":spring-core"))
+    implementation(project(":spring-context"))
+    implementation(project(":spring-webmvc"))
+    implementation(project(":spring-jdbc"))
+    implementation(project(":spring-orm"))
+    implementation(project(":spring-tx"))
+    implementation(project(":spring-web"))
+    implementation(project(":spring-context-indexer"))
+    implementation(project(":spring-context-support"))
+    implementation(project(":spring-expression"))
+    implementation(project(":spring-instrument"))
+    implementation(project(":spring-jcl"))
+    implementation(project(":spring-jms"))
+    implementation(project(":spring-messaging"))
+    implementation(project(":spring-oxm"))
+    implementation(project(":spring-test"))
+    implementation(project(":spring-webflux"))
+    implementation(project(":spring-websocket"))
+    implementation("org.aspectj:aspectjweaver:1.9.6")
+    implementation(project(":spring-aop"))
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation("com.alibaba:druid:1.2.4")
+    implementation("mysql:mysql-connector-java:5.1.48")
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
+
+}
+
+test {
+    useJUnitPlatform()
+}

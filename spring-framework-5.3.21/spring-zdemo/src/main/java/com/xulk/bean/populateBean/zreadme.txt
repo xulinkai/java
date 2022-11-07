@@ -1,0 +1,8 @@
+
+
+popularBean主要干了啥
+1、调用postProcessorAfterInstantiation方法来完成属性的赋值工作，可以直接终止后续的处理工作，也可以让后续的属性完成覆盖操作，取决于自己
+2、根据配置文件的autowireType属性来决定注入类型
+3、将对象中自定义的@autowired注解进行解析，完成注入
+4、根据xml文件中property标签定义的属性值，完成属性的解析和赋值操作
+

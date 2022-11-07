@@ -77,6 +77,9 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * @see #initBeanDefinitionReader
 	 * @see #loadBeanDefinitions
 	 */
+	/**
+	 * @Desc 通过XmlBeanDefinitionReader加载bean定义。 加载完之后 所有的beanDefinition会放到两个集合中 BeanDefinitionMap BeanDefinitionNames
+	 */
 	@Override
 	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
 		// Create a new XmlBeanDefinitionReader for the given BeanFactory.
@@ -86,11 +89,14 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 		// resource loading environment.
 		beanDefinitionReader.setEnvironment(this.getEnvironment());
 		beanDefinitionReader.setResourceLoader(this);
+		// 父类调用ResourceEntityResolver -> PluggableSchemaResolver 会加载 META-INF/spring.schemas 约束文件
 		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
 		// Allow a subclass to provide custom initialization of the reader,
 		// then proceed with actually loading the bean definitions.
+		// 初始化beanDefinitionReader对象，此处设置配置文件是否要进行验证
 		initBeanDefinitionReader(beanDefinitionReader);
+		// 开始完成BeanDefinition的加载
 		loadBeanDefinitions(beanDefinitionReader);
 	}
 
@@ -119,10 +125,12 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * @see #getResourcePatternResolver
 	 */
 	protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
+		// 以Resource的方式获得配置文件的资源位置
 		Resource[] configResources = getConfigResources();
 		if (configResources != null) {
 			reader.loadBeanDefinitions(configResources);
 		}
+		// 以String的形式获得配置文件的位置
 		String[] configLocations = getConfigLocations();
 		if (configLocations != null) {
 			reader.loadBeanDefinitions(configLocations);

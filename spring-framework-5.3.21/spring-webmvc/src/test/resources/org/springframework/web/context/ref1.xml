@@ -9,7 +9,7 @@
 <beans>
 
   <!-- this definition could be inside one beanRefFactory.xml file -->
-  <bean id="a.qualified.name.of.some.sort"
+  <bean id="xmlA.qualified.name.of.some.sort"
       class="org.springframework.context.support.ClassPathXmlApplicationContext">
     <property name="configLocation" value="org/springframework/web/context/beans1.xml"/>
   </bean>
@@ -19,9 +19,9 @@
   <bean id="another.qualified.name"
       class="org.springframework.context.support.ClassPathXmlApplicationContext">
     <property name="configLocation" value="org/springframework/web/context/beans1.xml"/>
-    <property name="parent" ref="a.qualified.name.of.some.sort"/>
+    <property name="parent" ref="xmlA.qualified.name.of.some.sort"/>
   </bean>
 
-  <alias name="another.qualified.name" alias="a.qualified.name.which.is.an.alias"/>
+  <alias name="another.qualified.name" alias="xmlA.qualified.name.which.is.an.alias"/>
 
 </beans>

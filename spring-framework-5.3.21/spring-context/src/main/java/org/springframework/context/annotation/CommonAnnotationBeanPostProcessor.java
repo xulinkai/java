@@ -204,6 +204,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 		setOrder(Ordered.LOWEST_PRECEDENCE - 3);
 		setInitAnnotationType(PostConstruct.class);
 		setDestroyAnnotationType(PreDestroy.class);
+
 		ignoreResourceType("javax.xml.ws.WebServiceContext");
 
 		// java.naming module present on JDK 9+?
@@ -302,7 +303,9 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 
 	@Override
 	public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+		// 处理@PostConstruct和@PreDestroy注解
 		super.postProcessMergedBeanDefinition(beanDefinition, beanType, beanName);
+		// 找出beanType所有被@Resource标记的字段和方法封装到InjectionMetadata中
 		InjectionMetadata metadata = findResourceMetadata(beanName, beanType, null);
 		metadata.checkConfigMembers(beanDefinition);
 	}
@@ -343,6 +346,9 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 	}
 
 
+	/**
+	 * @Desc 找出beanType所有被@Resource标记的字段和方法封装到InjectionMetadata中
+	 */
 	private InjectionMetadata findResourceMetadata(String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
 		// Fall back to class name as cache key, for backwards compatibility with custom callers.
 		String cacheKey = (StringUtils.hasLength(beanName) ? beanName : clazz.getName());
@@ -355,6 +361,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 					if (metadata != null) {
 						metadata.clear(pvs);
 					}
+					// 找出beanType所有被@Resource标记的字段和方法封装到InjectionMetadata中
 					metadata = buildResourceMetadata(clazz);
 					this.injectionMetadataCache.put(cacheKey, metadata);
 				}
@@ -364,6 +371,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 	}
 
 	private InjectionMetadata buildResourceMetadata(Class<?> clazz) {
+		// 当前class是否是候选class
 		if (!AnnotationUtils.isCandidateClass(clazz, resourceAnnotationTypes)) {
 			return InjectionMetadata.EMPTY;
 		}
@@ -374,6 +382,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 		do {
 			final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
 
+			// 处理属性
 			ReflectionUtils.doWithLocalFields(targetClass, field -> {
 				if (webServiceRefClass != null && field.isAnnotationPresent(webServiceRefClass)) {
 					if (Modifier.isStatic(field.getModifiers())) {
@@ -397,6 +406,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 				}
 			});
 
+			// 处理注解
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
 				Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
 				if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {

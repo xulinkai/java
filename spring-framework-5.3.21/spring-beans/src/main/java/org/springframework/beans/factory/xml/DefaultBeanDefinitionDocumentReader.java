@@ -118,6 +118,9 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Register each bean definition within the given root {@code <beans/>} element.
 	 */
 	@SuppressWarnings("deprecation")  // for Environment.acceptsProfiles(String...)
+	/**
+	 * @Desc 在给定的根{@code <beans>}元素中注册每个bean定义。
+	 */
 	protected void doRegisterBeanDefinitions(Element root) {
 		// Any nested <beans> elements will cause recursion in this method. In
 		// order to propagate and preserve <beans> default-* attributes correctly,
@@ -145,6 +148,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			}
 		}
 
+		// pre post 留给扩展（spring-mvc里面有扩展）
 		preProcessXml(root);
 		parseBeanDefinitions(root, this.delegate);
 		postProcessXml(root);
@@ -165,6 +169,9 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * "import", "alias", "bean".
 	 * @param root the DOM root element of the document
 	 */
+	/**
+	 * @Desc 解析文档中根级别的元素:"import"、"alias"、"bean"。
+	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
 		if (delegate.isDefaultNamespace(root)) {
 			NodeList nl = root.getChildNodes();
@@ -173,9 +180,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				if (node instanceof Element) {
 					Element ele = (Element) node;
 					if (delegate.isDefaultNamespace(ele)) {
+						// 解析默认标签 包含bean标签
 						parseDefaultElement(ele, delegate);
 					}
 					else {
+						// 解析自定义标签 可以看到解析自定义标签需要两个东西 一个NamespaceHandler 一个BeanDefinitionParser
 						delegate.parseCustomElement(ele);
 					}
 				}
@@ -186,6 +195,9 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 	}
 
+	/**
+	 * @Desc 把spring默认标签解析成beanDefinition并注册到容器中
+	 */
 	private void parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
 		if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) {
 			importBeanDefinitionResource(ele);
@@ -302,12 +314,18 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Process the given bean element, parsing the bean definition
 	 * and registering it with the registry.
 	 */
+	/**
+	 * @Desc 处理给定的bean元素，解析bean定义并将其注册到注册中心。
+	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+		// beanDefinitionHolder是beanDefinition对象的封装类，封装了BeanDefinition，bean的名字和别名，用它来完成向IOC容器的注册
+		// 得到这个beanDefinitionHolder就意味着beanDefinition是通过BeanDefinitionParserDelegate对xml元素的信息按照spring的bean规则进行解析得到的
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// Register the final decorated instance.
+				// 注册最后的装饰实例。 放到beanDefinitionMap和beanDefinitionNames中
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			}
 			catch (BeanDefinitionStoreException ex) {
@@ -315,6 +333,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 						bdHolder.getBeanName() + "'", ele, ex);
 			}
 			// Send registration event.
+			// 完成注册后 发送注册事件。
 			getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));
 		}
 	}

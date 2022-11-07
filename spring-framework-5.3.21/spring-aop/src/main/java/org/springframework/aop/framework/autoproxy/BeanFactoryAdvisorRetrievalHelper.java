@@ -64,12 +64,16 @@ public class BeanFactoryAdvisorRetrievalHelper {
 	 * @return the list of {@link org.springframework.aop.Advisor} beans
 	 * @see #isEligibleBean
 	 */
+	/**
+	 * @Desc 寻找所有Advisor.class的bean名字，如果存在就放入缓存，并进行创建，然后返回
+	 */
 	public List<Advisor> findAdvisorBeans() {
 		// Determine list of advisor bean names, if not cached already.
 		String[] advisorNames = this.cachedAdvisorBeanNames;
 		if (advisorNames == null) {
 			// Do not initialize FactoryBeans here: We need to leave all regular beans
 			// uninitialized to let the auto-proxy creator apply to them!
+			// 获取当前BeanFactory中所有实现了Advisor接口的bean的名称
 			advisorNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 					this.beanFactory, Advisor.class, true, false);
 			this.cachedAdvisorBeanNames = advisorNames;
@@ -78,9 +82,13 @@ public class BeanFactoryAdvisorRetrievalHelper {
 			return new ArrayList<>();
 		}
 
+		// 对获取到的实现Advisor接口的bean的名称进行遍历
 		List<Advisor> advisors = new ArrayList<>();
+		// 循环所有的beanName，找出对应的增强方法
 		for (String name : advisorNames) {
+			// isEligibleBean()是提供的一个hook方法，用于子类对Advisor进行过滤，这里默认返回值都是true
 			if (isEligibleBean(name)) {
+				// 如果当前bean还在创建过程中，则略过，其创建完成之后会为其判断是否需要织入切面逻辑
 				if (this.beanFactory.isCurrentlyInCreation(name)) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Skipping currently created advisor '" + name + "'");
@@ -88,6 +96,7 @@ public class BeanFactoryAdvisorRetrievalHelper {
 				}
 				else {
 					try {
+						// 将当前bean添加到结果中
 						advisors.add(this.beanFactory.getBean(name, Advisor.class));
 					}
 					catch (BeanCreationException ex) {

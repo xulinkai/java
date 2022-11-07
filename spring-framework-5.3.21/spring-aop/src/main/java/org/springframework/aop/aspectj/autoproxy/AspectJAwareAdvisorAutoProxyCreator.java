@@ -95,9 +95,14 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 		AspectJProxyUtils.makeAdvisorChainAspectJCapableIfNecessary(candidateAdvisors);
 	}
 
+	/**
+	 * @Desc 找出AspectJ切面和解析通知的方法 通知其Advisor里面有通知Advice实例
+	 */
 	@Override
 	protected boolean shouldSkip(Class<?> beanClass, String beanName) {
 		// TODO: Consider optimization by caching the list of the aspect names
+		// 找到要在自动代理中使用的所有候选advisor。
+		// advisor 是aop的顶级接口 用来管理 advice和pointCut
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
 		for (Advisor advisor : candidateAdvisors) {
 			if (advisor instanceof AspectJPointcutAdvisor &&

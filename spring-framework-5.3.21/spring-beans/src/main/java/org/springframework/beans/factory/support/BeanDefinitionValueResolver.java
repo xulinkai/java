@@ -104,10 +104,14 @@ class BeanDefinitionValueResolver {
 	 * @param value the value object to resolve
 	 * @return the resolved object
 	 */
+	/**
+	 * @Desc 给定一个PropertyValue，返回一个值，在必要时解析对工厂中其他bean的任何引用。循环引用的源码
+	 */
 	@Nullable
 	public Object resolveValueIfNecessary(Object argName, @Nullable Object value) {
 		// We must check each value to see whether it requires a runtime reference
 		// to another bean to be resolved.
+		// 运行时的bean引用 循环依赖在此处运行
 		if (value instanceof RuntimeBeanReference) {
 			RuntimeBeanReference ref = (RuntimeBeanReference) value;
 			return resolveReference(argName, ref);

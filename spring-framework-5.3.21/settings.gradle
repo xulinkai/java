@@ -1,5 +1,7 @@
 pluginManagement {
 	repositories {
+		maven { url "https://maven.aliyun.com/nexus/content/groups/public/" }
+		maven { url "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
 		mavenCentral()
 		gradlePluginPortal()
 		maven { url "https://repo.spring.io/release" }
@@ -35,6 +37,8 @@ include "spring-webmvc"
 include "spring-websocket"
 include "framework-bom"
 include "integration-tests"
+include 'spring-zdemo'
+
 
 rootProject.name = "spring"
 rootProject.children.each {project ->
@@ -55,3 +59,4 @@ settings.gradle.projectsLoaded {
 		}
 	}
 }
+

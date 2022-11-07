@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:xlk="http://www.xulk.com/schema/user"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.xulk.com/schema/user http://www.xulk.com/schema/user.xsd">
+
+	<xlk:user id="001" username="x_l_k" email="1513868258@163.com" password="000000"></xlk:user>
+
+
+
+</beans>

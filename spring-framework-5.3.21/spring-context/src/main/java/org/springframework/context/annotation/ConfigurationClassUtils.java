@@ -82,6 +82,9 @@ abstract class ConfigurationClassUtils {
 	 * @param metadataReaderFactory the current factory in use by the caller
 	 * @return whether the candidate qualifies as (any kind of) configuration class
 	 */
+	/**
+	 * @Desc 检查给定的bean定义是否为配置类(或在configurationcomponent类中声明的嵌套组件类，也将自动注册)的候选对象，并相应地标记它。
+	 */
 	public static boolean checkConfigurationClassCandidate(
 			BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
 
@@ -91,11 +94,16 @@ abstract class ConfigurationClassUtils {
 		}
 
 		AnnotationMetadata metadata;
+		// 通过注解注入的db都是AnnotatedGenericBeanDefinition，实现了AnnotatedBeanDefinition
+		// spring内部的bd是RootBeanDefinition，实现了AbstractBeanDefinition
+		// 此处主要用于判断是否归属于AnnotatedBeanDefinition
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
+			// 从当前的bean定义信息中获取元数据信息
 			metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
 		}
+		//判断是否是spring中默认的BeanDefinition
 		else if (beanDef instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) beanDef).hasBeanClass()) {
 			// Check already loaded Class if present...
 			// since we possibly can't even load the class file for this Class.
@@ -122,10 +130,13 @@ abstract class ConfigurationClassUtils {
 			}
 		}
 
+		// 获取bean定义的元数据被@Configuration注解标注的属性字典值
 		Map<String, Object> config = metadata.getAnnotationAttributes(Configuration.class.getName());
+		// 如果bean被@Configuration注解标注，且属性proxyBeanMethods为false(使用代理模式)，则将bean定义记为full
 		if (config != null && !Boolean.FALSE.equals(config.get("proxyBeanMethods"))) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+		// 如果bean被@configuration注解标注，且被注解@Component，@ComponentScan、@Import、@ImportResource或者@Bean标记的方法，则将bean定义标记为lite
 		else if (config != null || isConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
@@ -134,6 +145,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// It's a full or lite configuration candidate... Let's determine the order value, if any.
+		// bean定义是一个标记为full或lite的候选项，如果设置order则设置order属性值
 		Integer order = getOrder(metadata);
 		if (order != null) {
 			beanDef.setAttribute(ORDER_ATTRIBUTE, order);
@@ -149,6 +161,9 @@ abstract class ConfigurationClassUtils {
 	 * @return {@code true} if the given class is to be registered for
 	 * configuration class processing; {@code false} otherwise
 	 */
+	/**
+	 * @Desc 检查给定元数据中配置类候选(或在configurationcomponent类中声明的嵌套组件类)。
+	 */
 	public static boolean isConfigurationCandidate(AnnotationMetadata metadata) {
 		// Do not consider an interface or an annotation...
 		if (metadata.isInterface()) {
@@ -156,6 +171,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// Any of the typical annotations found?
+		// 通过静态方法注入此集合
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
 				return true;

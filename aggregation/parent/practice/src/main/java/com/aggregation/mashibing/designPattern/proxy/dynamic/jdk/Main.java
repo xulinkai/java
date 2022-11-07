@@ -13,6 +13,7 @@ import java.lang.reflect.Proxy;
 public class Main {
 
     public static void main(String[] args) {
+        System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
         Tank tank = new Tank();
         //参数1 用哪一个classLoader将返回的代理对象load到内存
         //参数2 代理对象应该实现的接口
@@ -29,5 +30,7 @@ public class Main {
                     }
                 });
         moveable.go();
+        moveable.toString();
+        System.out.println(moveable.hashCode());
     }
 }

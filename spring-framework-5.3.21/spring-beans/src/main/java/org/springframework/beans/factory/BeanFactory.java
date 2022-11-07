@@ -66,6 +66,7 @@ import org.springframework.lang.Nullable;
  *
  * <p>Bean factory implementations should support the standard bean lifecycle interfaces
  * as far as possible. The full set of initialization methods and their standard order is:
+ * Bean工厂实现应该尽可能支持标准的Bean生命周期接口。完整的初始化方法集及其标准顺序为:
  * <ol>
  * <li>BeanNameAware's {@code setBeanName}
  * <li>BeanClassLoaderAware's {@code setBeanClassLoader}

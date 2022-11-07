@@ -427,6 +427,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				}
 				try {
 					MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
+					// 按条件匹配
 					if (isCandidateComponent(metadataReader)) {
 						ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 						sbd.setSource(resource);

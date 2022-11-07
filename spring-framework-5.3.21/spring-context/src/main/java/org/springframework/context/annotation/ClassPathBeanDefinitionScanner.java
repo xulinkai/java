@@ -60,6 +60,9 @@ import org.springframework.util.PatternMatchUtils;
  * @see org.springframework.stereotype.Service
  * @see org.springframework.stereotype.Controller
  */
+/**
+ * @Desc 此类被用来扫描注解，比如@Component，@Repository，@Service,@Controller，在创建对象的时候做一些基本的配置工作
+ */
 public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateComponentProvider {
 
 	private final BeanDefinitionRegistry registry;
@@ -273,15 +276,20 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 		for (String basePackage : basePackages) {
+			// 扫描basePackage 将符合要求的bean定义全部找出来
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
+				// 解析@Scope注解
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
+				// 使用beanName生成器来生成beanName
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
 				if (candidate instanceof AbstractBeanDefinition) {
+					// 处理beanDefinition对象
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				if (candidate instanceof AnnotatedBeanDefinition) {
+					// 处理定义在目标类上的通用注解，包括@Lazy，@Primary，@DependsOn，@Role，@Description
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
 				if (checkCandidate(beanName, candidate)) {
@@ -289,6 +297,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
+					// 注册BeanDefinition
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}

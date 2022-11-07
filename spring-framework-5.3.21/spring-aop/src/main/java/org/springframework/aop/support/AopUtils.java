@@ -223,10 +223,17 @@ public abstract class AopUtils {
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
+		// 进行切点表达式的匹配最重要的就是ClassFilter和MethodMatcher这两个方法的实现。
+		// MethodMatcher中有两个matches方法。一个参数是只有Method对象和targetClass，另一个参数有Method对象和targetClass对象还有一个Method的方法参数
+		// 他们两个的区别是：
+		// 两个参数的matches是用于静态的方法匹配 三个参数的matches是在运行期动态的进行方法匹配的
+		// 先进行ClassFilter的matches方法校验
+		// 先判断类在匹配规则之下
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
 
+		// 再进行MethodMatcher方法级别的判断
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
@@ -239,14 +246,20 @@ public abstract class AopUtils {
 		}
 
 		Set<Class<?>> classes = new LinkedHashSet<>();
+		// 当前对象是否是代理的class对象
 		if (!Proxy.isProxyClass(targetClass)) {
 			classes.add(ClassUtils.getUserClass(targetClass));
 		}
+		// 获取到targetClass所实现的接口的class对象，然后加入到集合中
 		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
 
 		for (Class<?> clazz : classes) {
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
 			for (Method method : methods) {
+				// 只要有一个方法能匹配到就返回true
+				// 这里就会有一个问题：因为在一个目标中可能会有多个方法存在，有的方法是满足这个切点的匹配规则的
+				// 但是也可能有一些方法是不匹配切点规则的，这里检测的是只有一个Method满足切点规则就返回true了
+				// 所以在运行时进行方法拦截的时候还会有一次运行时的方法切点规则匹配
 				if (introductionAwareMethodMatcher != null ?
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
 						methodMatcher.matches(method, targetClass)) {
@@ -281,9 +294,11 @@ public abstract class AopUtils {
 	 * @return whether the pointcut can apply on any method
 	 */
 	public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean hasIntroductions) {
+		// 如果是IntroductionAdvisor的话，则调用IntroductionAdvisor类型的实例进行类的过滤
 		if (advisor instanceof IntroductionAdvisor) {
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
+		// 通常Advisor都是PointcutAdvisor类型
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
@@ -308,16 +323,20 @@ public abstract class AopUtils {
 		}
 		List<Advisor> eligibleAdvisors = new ArrayList<>();
 		for (Advisor candidate : candidateAdvisors) {
+			// 判断增强器对象是不是实现了IntroductionAdvisor (很明显事务的没有实现 所以不会走下面的逻辑)
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
 				eligibleAdvisors.add(candidate);
 			}
 		}
 		boolean hasIntroductions = !eligibleAdvisors.isEmpty();
 		for (Advisor candidate : candidateAdvisors) {
+			// 判断我们的增强器对象是不是实现了IntroductionAdvisor
 			if (candidate instanceof IntroductionAdvisor) {
 				// already processed
+				// 上面已经处理过 直接跳过
 				continue;
 			}
+			// 真正判断 增强器是否适合当前类型
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}
